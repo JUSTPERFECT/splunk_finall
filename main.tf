@@ -114,7 +114,7 @@ data "template_file" "user_data_indexer" {
         web_conf_content                = "${data.template_file.web_conf.rendered}"
         role                            = "indexer"
         indexer_app                     = "${file("indexer_app.sh")}"
-        search_app                      = ""   
+        search_app                      = ""
     }
 }
 
@@ -124,7 +124,7 @@ data "template_file" "user_data_searchhead" {
         server_conf_content             = "${data.template_file.server_conf_searchhead.rendered}"
         web_conf_content                = "${data.template_file.web_conf.rendered}"
         role                            = "searchhead"
-        indexer_app                     = ""	
+        indexer_app                     = ""
         search_app                      = "${file("search_app.sh")}"
     }
 }
@@ -140,11 +140,12 @@ resource "aws_instance" "master" {
     tags {
         Name = "splunk_master"
     }
+    iam_instance_profile        = "${var.iam_role_indexer}"
     ami                         = "${var.ami}"
     instance_type               = "${var.instance_type_indexer}"
     key_name                    = "${var.key_name}"
     subnet_id                   = "${element(split(",", var.subnets), "0")}"
-    user_data                   = "${file("master.sh")}"
+    user_data                   = "${data.template_file.user_data_master.rendered}"
     vpc_security_group_ids      = ["${aws_security_group.all.id}"]
 }
 
